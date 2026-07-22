@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "172545076076",
+    "project_id": "taphoabayphuoc-4cbe1",
+    "storage_bucket": "taphoabayphuoc-4cbe1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172545076076:android:5eb4bf766da3183733a149",
+        "android_client_info": {
+          "package_name": "com.example.taphoabayphuoc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgTGnkXXAH8tRLp0VlgpQFJ5CrKvnu-x4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
