@@ -19,9 +19,9 @@ public class ProductViewModel extends AndroidViewModel {
         repository = new ProductRepository(application);
     }
 
-    public void seedData() {
-        repository.seedData();
-    }
+//    public void seedData() {
+//        repository.seedData();
+//    }
 
     public Product findByBarcode(String barcode) {
         return repository.findByBarcode(barcode);

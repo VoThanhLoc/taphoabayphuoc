@@ -1,4 +1,11 @@
 package com.example.taphoabayphuoc.listener;
 
-public class ProductListener {
+import com.example.taphoabayphuoc.models.Product;
+
+public interface ProductListener {
+
+    void onEdit(Product product);
+
+    void onDelete(Product product);
+
 }

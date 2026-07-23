@@ -12,7 +12,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="#2E7D32"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:title="Thêm sản phẩm"/>
+        app:title="Sửa sản phẩm"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -30,9 +30,9 @@
                 android:layout_height="150dp"
                 android:layout_gravity="center"
                 android:background="@drawable/image_background"
-                android:padding="16dp"
+                android:padding="8dp"
+                android:scaleType="centerCrop"
                 android:src="@drawable/ic_product"/>
-
             <Button
                 android:id="@+id/btnChooseImage"
                 android:layout_width="wrap_content"

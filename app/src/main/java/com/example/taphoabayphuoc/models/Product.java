@@ -6,6 +6,7 @@ public class Product {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
+    private String firebaseId;
     private String barcode;
     private String name;
     private double importPrice;
@@ -18,6 +19,7 @@ public class Product {
     }
 
     public Product(int id,
+                   String firebaseId,
                    String barcode,
                    String name,
                    double importPrice,
@@ -27,6 +29,7 @@ public class Product {
                    boolean active) {
 
         this.id = id;
+        this.firebaseId = firebaseId;
         this.barcode = barcode;
         this.name = name;
         this.importPrice = importPrice;
@@ -42,6 +45,14 @@ public class Product {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getFirebaseId() {
+        return firebaseId;
+    }
+
+    public void setFirebaseId(String firebaseId) {
+        this.firebaseId = firebaseId;
     }
 
     public String getBarcode() {
