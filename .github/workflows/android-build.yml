@@ -33,8 +33,10 @@ jobs:
 
       - name: Verify keystore
         run: |
-          ls -lh upload-keystore.jks
-          keytool -list -keystore upload-keystore.jks -storepass "${{ secrets.KEYSTORE_PASSWORD }}"
+          ls -l upload-keystore.jks
+          keytool -list -v \
+          -keystore upload-keystore.jks \
+          -storepass "${{ secrets.KEYSTORE_PASSWORD }}"
 
       # Tạo keystore.properties
       - name: Create keystore.properties
