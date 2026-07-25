@@ -15,7 +15,7 @@ public class UserRepository {
     public UserRepository(Context context) {
 
         dao = DatabaseClient
-                .getInstance(context)
+                .getInstance(context.getApplicationContext())
                 .userDao();
 
     }

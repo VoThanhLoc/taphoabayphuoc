@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.taphoabayphuoc.activities.barcode.GenerateBarcodeActivity;
 import com.example.taphoabayphuoc.activities.invoice.InvoiceActivity;
 import com.example.taphoabayphuoc.activities.product.ProductActivity;
 import com.example.taphoabayphuoc.activities.sale.SaleActivity;
@@ -58,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
         SettingRepository repository =
                 new SettingRepository(this);
         binding.cardLogout.setOnClickListener(v -> showLogoutDialog());
+        binding.createBarcode.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, GenerateBarcodeActivity.class);
+            startActivity(intent);
+        });
         if(repository.get() == null){
 
             SettingEntity setting = new SettingEntity();

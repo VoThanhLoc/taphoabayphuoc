@@ -46,13 +46,14 @@ public class LoginActivity extends AppCompatActivity {
             if (password.isEmpty()) {
                 binding.edtPassword.setError("Nhập mật khẩu");
                 return;
-            }
+                               }
 
             authRepository.login(email, password, new AuthRepository.LoginCallback() {
 
 
                 @Override
                 public void onSuccess() {
+                    try {
                     SessionManager session = new SessionManager(LoginActivity.this);
                     session.setLogin(true);
                     session.saveUid(
@@ -68,40 +69,33 @@ public class LoginActivity extends AppCompatActivity {
                     FirebaseRepository firebaseRepository = new FirebaseRepository();
                     ProductRepository productRepository =
                             new ProductRepository(LoginActivity.this);
+
+                    // Perform initialization and sync in background
                     firebaseRepository.createUserIfNotExists(
-                            FirebaseManager.getAuth()
-                                    .getCurrentUser()
-                                    .getUid(),
-                            FirebaseManager.getAuth()
-                                    .getCurrentUser()
-                                    .getEmail(),
+                            FirebaseManager.getAuth().getCurrentUser().getUid(),
+                            FirebaseManager.getAuth().getCurrentUser().getEmail(),
                             () -> {
-                                Log.d("LOGIN", "Start sync products");
-                                productRepository.syncProductsFromFirebase(
-                                        new ProductRepository.SyncCallback() {
-                                            @Override
-                                            public void onSuccess() {
+                                Log.d("LOGIN", "User setup done, starting sync");
+                                productRepository.syncProductsFromFirebase(new ProductRepository.SyncCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d("LOGIN", "Background sync success");
+                                    }
 
-                                                Log.d("LOGIN", "Sync success");
-
-                                                Intent intent = new Intent(
-                                                        LoginActivity.this,
-                                                        MainActivity.class);
-
-                                                startActivity(intent);
-                                                finish();
-                                            }
-                                            @Override
-                                            public void onError(String message) {
-
-                                                Toast.makeText(
-                                                        LoginActivity.this,
-                                                        message,
-                                                        Toast.LENGTH_SHORT
-                                                ).show();
-                                            }
-                                        });
+                                    @Override
+                                    public void onError(String message) {
+                                        Log.e("LOGIN", "Background sync error: " + message);
+                                    }
+                                });
                             });
+
+                    // Navigate to MainActivity immediately
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                    } catch (Exception e) {
+                        Log.e("SYNC", "Exception", e);
+                    }
                 }
                 @Override
                 public void onError(String message) {

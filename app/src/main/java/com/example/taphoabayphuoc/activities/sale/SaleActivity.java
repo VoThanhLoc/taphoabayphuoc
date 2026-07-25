@@ -271,6 +271,8 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         });
 
         updateTotal();
+
+        binding.btnCloseCamera.setOnClickListener(v -> closeCamera());
     }
 
     private void addProduct(Product product) {
@@ -304,6 +306,8 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         adapter.notifyDataSetChanged();
 
         updateTotal();
+
+        binding.btnCloseCamera.setOnClickListener(v -> closeCamera());
     }
 
     @Override
@@ -322,6 +326,8 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         adapter.notifyDataSetChanged();
 
         updateTotal();
+
+        binding.btnCloseCamera.setOnClickListener(v -> closeCamera());
     }
 
     @Override
@@ -342,6 +348,8 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         adapter.notifyDataSetChanged();
 
         updateTotal();
+
+        binding.btnCloseCamera.setOnClickListener(v -> closeCamera());
     }
 
     @Override
@@ -354,6 +362,8 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         adapter.notifyDataSetChanged();
 
         updateTotal();
+
+        binding.btnCloseCamera.setOnClickListener(v -> closeCamera());
     }
 
     private void updateTotal() {
@@ -389,6 +399,7 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
     private void openCamera() {
 
         binding.previewCamera.setVisibility(View.VISIBLE);
+        binding.btnCloseCamera.setVisibility(View.VISIBLE);
 
         ListenableFuture<ProcessCameraProvider> future =
                 ProcessCameraProvider.getInstance(this);
@@ -439,6 +450,7 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         }
 
         binding.previewCamera.setVisibility(View.GONE);
+        binding.btnCloseCamera.setVisibility(View.GONE);
 
     }
     @SuppressLint("UnsafeOptInUsageError")
@@ -501,8 +513,6 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
 
             closeCamera();
 
-            scanned = false;
-            closeCamera();
             scanned = false;
         });
 

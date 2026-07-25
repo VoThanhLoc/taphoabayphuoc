@@ -18,4 +18,7 @@ public interface InvoiceItemDao {
     List<InvoiceItemEntity> getByInvoice(int invoiceId);
     @Query("SELECT * FROM invoice_item WHERE invoiceId=:invoiceId")
     List<InvoiceItemEntity> getByInvoiceId(int invoiceId);
+
+    @Query("DELETE FROM invoice_item")
+    void deleteAll();
 }

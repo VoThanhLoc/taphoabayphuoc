@@ -3,29 +3,28 @@ package com.example.taphoabayphuoc.repository;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.taphoabayphuoc.database.DatabaseClient;
 import com.example.taphoabayphuoc.database.ProductDao;
-import com.example.taphoabayphuoc.models.Product;
-
-import java.util.ArrayList;
-import java.util.List;
 import com.example.taphoabayphuoc.firebase.FirebaseRepository;
+import com.example.taphoabayphuoc.models.Product;
+import com.example.taphoabayphuoc.utils.BarcodeGenerator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import androidx.annotation.NonNull;
+import java.util.List;
 
-import java.util.ArrayList;
 public class ProductRepository {
 
     private final ProductDao productDao;
     private final FirebaseRepository firebaseRepository;
-    private ProductFirebaseRepository firebase;
+
     public ProductRepository(Context context) {
         firebaseRepository = new FirebaseRepository();
         productDao = DatabaseClient
-                .getInstance(context)
+                .getInstance(context.getApplicationContext())
                 .productDao();
     }
 
@@ -57,10 +56,9 @@ public class ProductRepository {
     }
 
     public Product getById(int id){
-
         return productDao.getById(id);
-
     }
+
     public interface SyncCallback {
         void onSuccess();
         void onError(String message);
@@ -76,28 +74,46 @@ public class ProductRepository {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d("SYNC", "Firebase count = " + snapshot.getChildrenCount());
-                for (DataSnapshot child : snapshot.getChildren()) {
+                try {
+                    Log.d("SYNC", "Data snapshot: " + snapshot.toString());
+                    Log.d("SYNC", "Firebase count = " + snapshot.getChildrenCount());
 
-                    Product firebaseProduct =
-                            child.getValue(Product.class);
-
-                    if (firebaseProduct == null) {
-                        continue;
+                    if (!snapshot.exists()) {
+                        Log.d("SYNC", "No products found in Firebase");
+                        callback.onSuccess();
+                        return;
                     }
-                    firebaseProduct.setFirebaseId(child.getKey());
-                    Product localProduct =
-                            productDao.findByFirebaseId(
-                                    firebaseProduct.getFirebaseId());
 
-                    if (localProduct == null) {
-                        productDao.insert(firebaseProduct);
-                    } else {
-                        firebaseProduct.setId(localProduct.getId());
-                        productDao.update(firebaseProduct);
+                    for (DataSnapshot child : snapshot.getChildren()) {
+                        Log.d("SYNC", "Processing child: " + child.getKey());
+                        Product firebaseProduct = child.getValue(Product.class);
+
+                        if (firebaseProduct == null) {
+                            Log.e("SYNC", "Failed to parse product for key: " + child.getKey());
+                            continue;
+                        }
+
+                        firebaseProduct.setFirebaseId(child.getKey());
+
+                        Product localProduct =
+                                productDao.findByFirebaseId(firebaseProduct.getFirebaseId());
+
+                        if (localProduct == null) {
+                            productDao.insert(firebaseProduct);
+                            Log.d("SYNC", "Insert: " + firebaseProduct.getName());
+                        } else {
+                            firebaseProduct.setId(localProduct.getId());
+                            productDao.update(firebaseProduct);
+                            Log.d("SYNC", "Update: " + firebaseProduct.getName());
+                        }
                     }
+
+                    callback.onSuccess();
+
+                } catch (Exception e) {
+                    Log.e("SYNC", "Exception", e);
+                    callback.onError(e.getMessage());
                 }
-                callback.onSuccess();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -105,5 +121,15 @@ public class ProductRepository {
             }
         });
 
+    }
+
+    public String generateUniqueBarcode() {
+        while (true) {
+            String barcode = BarcodeGenerator.generate();
+            Product product = productDao.findByBarcode(barcode);
+            if (product == null) {
+                return barcode;
+            }
+        }
     }
 }

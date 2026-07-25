@@ -1,5 +1,7 @@
 package com.example.taphoabayphuoc.repository;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.example.taphoabayphuoc.firebase.FirebaseManager;
@@ -26,7 +28,15 @@ public class AuthRepository {
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
                         if (task.isSuccessful()) {
+                            FirebaseManager.getRoot()
+                                    .child("test")
+                                    .setValue("Hello")
+                                    .addOnSuccessListener(unused ->
+                                            Log.d("TEST axclv", "WRITE SUCCESS"))
+                                    .addOnFailureListener(e ->
+                                            Log.e("TEST axclv", "WRITE FAIL", e));
                             callback.onSuccess();
+
                         } else {
 
                             String message = "Đăng nhập thất bại";

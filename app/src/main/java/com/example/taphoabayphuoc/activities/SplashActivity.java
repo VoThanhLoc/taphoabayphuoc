@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.taphoabayphuoc.R;
 import com.example.taphoabayphuoc.activities.login.LoginActivity;
+import com.example.taphoabayphuoc.firebase.FirebaseManager;
 import com.example.taphoabayphuoc.utils.SessionManager;
 
 public class SplashActivity extends AppCompatActivity {
@@ -17,9 +18,10 @@ public class SplashActivity extends AppCompatActivity {
 
         SessionManager session = new SessionManager(this);
 
-        if (session.isLogin()) {
+        if (session.isLogin() && FirebaseManager.getAuth().getCurrentUser() != null) {
             startActivity(new Intent(this, MainActivity.class));
         } else {
+            session.logout();
             startActivity(new Intent(this, LoginActivity.class));
         }
         setContentView(R.layout.activity_splash);

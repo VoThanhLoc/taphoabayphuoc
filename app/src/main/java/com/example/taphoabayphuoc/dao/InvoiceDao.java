@@ -18,4 +18,10 @@ public interface InvoiceDao {
     List<InvoiceEntity> getAll();
     @Query("SELECT * FROM invoice WHERE id=:id")
     InvoiceEntity getById(int id);
+
+    @Query("SELECT * FROM invoice WHERE code=:code LIMIT 1")
+    InvoiceEntity findByCode(String code);
+
+    @Query("DELETE FROM invoice")
+    void deleteAll();
 }

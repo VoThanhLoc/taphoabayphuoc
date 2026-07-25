@@ -13,7 +13,7 @@ public class SettingRepository {
     public SettingRepository(Context context) {
 
         dao = DatabaseClient
-                .getInstance(context)
+                .getInstance(context.getApplicationContext())
                 .settingDao();
 
     }

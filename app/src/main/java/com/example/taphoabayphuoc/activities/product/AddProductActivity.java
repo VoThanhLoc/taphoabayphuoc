@@ -13,9 +13,9 @@ import androidx.core.content.FileProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.taphoabayphuoc.R;
+import android.view.inputmethod.EditorInfo;
 import com.example.taphoabayphuoc.databinding.ActivityAddProductBinding;
 import com.example.taphoabayphuoc.models.Product;
-import com.example.taphoabayphuoc.repository.ProductFirebaseRepository;
 import com.example.taphoabayphuoc.repository.ProductRepository;
 
 import java.io.File;
@@ -28,7 +28,6 @@ public class AddProductActivity extends AppCompatActivity {
     private ProductRepository repository;
 
     private Uri imageUri;
-    private ProductFirebaseRepository firebaseRepository;
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(
@@ -68,14 +67,27 @@ public class AddProductActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        firebaseRepository = new ProductFirebaseRepository();
         binding = ActivityAddProductBinding.inflate(getLayoutInflater());
 
         setContentView(binding.getRoot());
 
         repository = new ProductRepository(this);
 
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         binding.btnChooseImage.setOnClickListener(v -> showImageDialog());
+
+        binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+                binding.edtImportPrice.requestFocus();
+                return true;
+            }
+            return false;
+        });
 
         binding.btnSave.setOnClickListener(v -> saveProduct());
 
@@ -89,21 +101,9 @@ public class AddProductActivity extends AppCompatActivity {
         String sellPriceText = binding.edtSellPrice.getText().toString().trim();
         String quantityText = binding.edtQuantity.getText().toString().trim();
 
-        if (TextUtils.isEmpty(barcode)) {
-            binding.edtBarcode.setError("Vui lòng nhập mã vạch");
-            binding.edtBarcode.requestFocus();
-            return;
-        }
-
         if (TextUtils.isEmpty(name)) {
             binding.edtName.setError("Vui lòng nhập tên sản phẩm");
             binding.edtName.requestFocus();
-            return;
-        }
-
-        if (TextUtils.isEmpty(importPriceText)) {
-            binding.edtImportPrice.setError("Vui lòng nhập giá nhập");
-            binding.edtImportPrice.requestFocus();
             return;
         }
 
@@ -113,21 +113,13 @@ public class AddProductActivity extends AppCompatActivity {
             return;
         }
 
-        if (TextUtils.isEmpty(quantityText)) {
-            binding.edtQuantity.setError("Vui lòng nhập số lượng");
-            binding.edtQuantity.requestFocus();
-            return;
-        }
-
-        Product existed = repository.getByBarcode(barcode);
-
-        if (existed != null) {
-
-            binding.edtBarcode.setError("Mã vạch đã tồn tại");
-            binding.edtBarcode.requestFocus();
-
-            return;
-
+        if (!TextUtils.isEmpty(barcode)) {
+            Product existed = repository.getByBarcode(barcode);
+            if (existed != null) {
+                binding.edtBarcode.setError("Mã vạch đã tồn tại");
+                binding.edtBarcode.requestFocus();
+                return;
+            }
         }
 
         double importPrice;
@@ -135,11 +127,9 @@ public class AddProductActivity extends AppCompatActivity {
         int quantity;
 
         try {
-
-            importPrice = Double.parseDouble(importPriceText);
+            importPrice = TextUtils.isEmpty(importPriceText) ? 0 : Double.parseDouble(importPriceText);
             sellPrice = Double.parseDouble(sellPriceText);
-            quantity = Integer.parseInt(quantityText);
-
+            quantity = TextUtils.isEmpty(quantityText) ? 0 : Integer.parseInt(quantityText);
         } catch (Exception e) {
 
             Toast.makeText(
@@ -170,7 +160,7 @@ public class AddProductActivity extends AppCompatActivity {
             product.setImageUrl("");
 
         }
-        firebaseRepository.insert(product);
+
         repository.insert(product);
 
         Toast.makeText(

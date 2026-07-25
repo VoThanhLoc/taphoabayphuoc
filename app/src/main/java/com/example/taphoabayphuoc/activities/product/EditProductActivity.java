@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.example.taphoabayphuoc.R;
+import android.view.inputmethod.EditorInfo;
 import com.example.taphoabayphuoc.databinding.ActivityEditProductBinding;
 import com.example.taphoabayphuoc.models.Product;
-import com.example.taphoabayphuoc.repository.ProductFirebaseRepository;
 import com.example.taphoabayphuoc.repository.ProductRepository;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
@@ -26,12 +26,10 @@ public class EditProductActivity extends AppCompatActivity {
     private Product product;
 
     private Uri imageUri;
-    private ProductFirebaseRepository firebaseRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        firebaseRepository = new ProductFirebaseRepository();
         binding = ActivityEditProductBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -41,6 +39,7 @@ public class EditProductActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         int id = getIntent().getIntExtra("id", -1);
@@ -53,6 +52,14 @@ public class EditProductActivity extends AppCompatActivity {
         }
 
         loadData();
+
+        binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+                binding.edtImportPrice.requestFocus();
+                return true;
+            }
+            return false;
+        });
 
         binding.btnChooseImage.setOnClickListener(v -> showImageDialog());
 
@@ -99,37 +106,19 @@ public class EditProductActivity extends AppCompatActivity {
             return;
         }
 
-        if (barcode.isEmpty()) {
-            binding.edtBarcode.setError("Nhập barcode");
-            binding.edtBarcode.requestFocus();
-            return;
-        }
-
-        Product check = repository.getByBarcode(barcode);
-
-        if (check != null && check.getId() != product.getId()) {
-
-            binding.edtBarcode.setError("Barcode đã tồn tại");
-            binding.edtBarcode.requestFocus();
-            return;
-        }
-
-        if (importPriceText.isEmpty()) {
-            binding.edtImportPrice.setError("Nhập giá nhập");
-            binding.edtImportPrice.requestFocus();
-            return;
-        }
-
         if (sellPriceText.isEmpty()) {
             binding.edtSellPrice.setError("Nhập giá bán");
             binding.edtSellPrice.requestFocus();
             return;
         }
 
-        if (quantityText.isEmpty()) {
-            binding.edtQuantity.setError("Nhập số lượng");
-            binding.edtQuantity.requestFocus();
-            return;
+        if (!barcode.isEmpty()) {
+            Product check = repository.getByBarcode(barcode);
+            if (check != null && check.getId() != product.getId()) {
+                binding.edtBarcode.setError("Barcode đã tồn tại");
+                binding.edtBarcode.requestFocus();
+                return;
+            }
         }
 
         double importPrice;
@@ -137,11 +126,9 @@ public class EditProductActivity extends AppCompatActivity {
         int quantity;
 
         try {
-
-            importPrice = Double.parseDouble(importPriceText);
+            importPrice = importPriceText.isEmpty() ? 0 : Double.parseDouble(importPriceText);
             sellPrice = Double.parseDouble(sellPriceText);
-            quantity = Integer.parseInt(quantityText);
-
+            quantity = quantityText.isEmpty() ? 0 : Integer.parseInt(quantityText);
         } catch (NumberFormatException e) {
 
             Toast.makeText(this,
@@ -160,7 +147,7 @@ public class EditProductActivity extends AppCompatActivity {
         product.setImageUrl(imageUri == null ? "" : imageUri.toString());
 
         repository.update(product);
-        firebaseRepository.update(product);
+
         Toast.makeText(this,
                 "Đã cập nhật sản phẩm",
                 Toast.LENGTH_SHORT).show();
