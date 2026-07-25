@@ -31,6 +31,9 @@ import com.example.taphoabayphuoc.utils.UpdateManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import android.app.ProgressDialog;
+import android.widget.Toast;
+
 import java.io.File;
 
 /**
@@ -142,6 +145,14 @@ public class MainActivity extends AppCompatActivity {
                 .setCancelable(false)
                 .setPositiveButton("Cập nhật", (dialog, which) -> {
 
+                    ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setTitle("Đang tải bản cập nhật");
+                    progressDialog.setMessage("Vui lòng đợi...");
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                    progressDialog.setMax(100);
+                    progressDialog.setCancelable(false);
+                    progressDialog.show();
+
                     ApkDownloader downloader = new ApkDownloader(this);
 
                     downloader.download(
@@ -150,28 +161,23 @@ public class MainActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onProgress(int progress) {
-
-                                    Log.d("DOWNLOAD", progress + "%");
-
+                                    runOnUiThread(() -> progressDialog.setProgress(progress));
                                 }
 
                                 @Override
                                 public void onSuccess(File apkFile) {
-
-                                    Log.d("DOWNLOAD", "Done");
-                                    Log.d("DOWNLOAD", apkFile.getAbsolutePath());
                                     runOnUiThread(() -> {
-
+                                        progressDialog.dismiss();
                                         ApkInstaller.install(MainActivity.this, apkFile);
-
                                     });
                                 }
 
                                 @Override
                                 public void onError(String message) {
-
-                                    Log.e("DOWNLOAD", message);
-
+                                    runOnUiThread(() -> {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(MainActivity.this, "Lỗi tải: " + message, Toast.LENGTH_SHORT).show();
+                                    });
                                 }
                             });
 

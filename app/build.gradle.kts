@@ -13,8 +13,12 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0.1"
+        versionName = "1.0.2"
+/* git run release
+$ git tag v1.0.1
+ git push origin v1.0.1
 
+ */
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

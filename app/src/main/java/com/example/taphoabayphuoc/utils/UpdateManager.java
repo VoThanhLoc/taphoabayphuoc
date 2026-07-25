@@ -56,6 +56,7 @@ public class UpdateManager {
                             String latestVersion =
                                     object.getString("tag_name")
                                             .replace("v", "");
+
                             JSONArray assets = object.getJSONArray("assets");
 
                             if (assets.length() == 0) {
