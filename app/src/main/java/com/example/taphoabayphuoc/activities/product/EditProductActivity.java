@@ -1,11 +1,14 @@
 package com.example.taphoabayphuoc.activities.product;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
@@ -34,29 +37,28 @@ public class EditProductActivity extends AppCompatActivity {
     private ActivityEditProductBinding binding;
     private ProductRepository repository;
     private Product product;
-    private Uri imageUri;
+    private Uri tempImageUri;
+    private String savedImagePath;
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
                 if (uri != null) {
-                    String path = FileUtils.saveImageToInternal(this, uri);
-                    if (path != null) {
-                        imageUri = Uri.fromFile(new File(path));
-                        Glide.with(this).load(imageUri).placeholder(R.drawable.ic_product).into(binding.imgProduct);
+                    savedImagePath = FileUtils.saveImageToInternal(this, uri);
+                    if (savedImagePath != null) {
+                        Glide.with(this).load(new File(savedImagePath)).placeholder(R.drawable.ic_product).into(binding.imgProduct);
                     }
                 }
             });
 
     private final ActivityResultLauncher<Uri> cameraLauncher =
             registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
-                if (success) {
-                    String path = FileUtils.saveImageToInternal(this, imageUri);
-                    if (path != null) {
-                        imageUri = Uri.fromFile(new File(path));
-                        Glide.with(this).load(imageUri).placeholder(R.drawable.ic_product).into(binding.imgProduct);
+                if (success && tempImageUri != null) {
+                    savedImagePath = FileUtils.saveImageToInternal(this, tempImageUri);
+                    if (savedImagePath != null) {
+                        Glide.with(this).load(new File(savedImagePath)).placeholder(R.drawable.ic_product).into(binding.imgProduct);
                     }
                 } else {
-                    Log.e("CAMERA", "TakePicture failed or cancelled");
+                    Log.e("CAMERA", "TakePicture failed or cancelled. success=" + success);
                 }
             });
 
@@ -65,7 +67,7 @@ public class EditProductActivity extends AppCompatActivity {
                 if (isGranted) {
                     openCamera();
                 } else {
-                    Toast.makeText(this, "Bạn cần cấp quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Cần quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -93,7 +95,8 @@ public class EditProductActivity extends AppCompatActivity {
         loadData();
 
         binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || 
+                (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
                 binding.edtImportPrice.requestFocus();
                 return true;
             }
@@ -119,9 +122,8 @@ public class EditProductActivity extends AppCompatActivity {
         binding.chkActive.setChecked(product.isActive());
 
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-            Uri currentUri = Uri.parse(product.getImageUrl());
             Glide.with(this)
-                    .load(currentUri)
+                    .load(FileUtils.getGlidePath(product.getImageUrl()))
                     .placeholder(R.drawable.ic_product)
                     .into(binding.imgProduct);
         }
@@ -129,58 +131,30 @@ public class EditProductActivity extends AppCompatActivity {
 
     private void updateProduct() {
         String name = binding.edtName.getText().toString().trim();
-        String barcode = binding.edtBarcode.getText().toString().trim();
-        String importPriceText = binding.edtImportPrice.getText().toString().trim();
         String sellPriceText = binding.edtSellPrice.getText().toString().trim();
-        String quantityText = binding.edtQuantity.getText().toString().trim();
 
         if (name.isEmpty()) {
             binding.edtName.setError("Nhập tên sản phẩm");
-            binding.edtName.requestFocus();
             return;
         }
-
         if (sellPriceText.isEmpty()) {
             binding.edtSellPrice.setError("Nhập giá bán");
-            binding.edtSellPrice.requestFocus();
-            return;
-        }
-
-        if (!barcode.isEmpty()) {
-            Product check = repository.getByBarcode(barcode);
-            if (check != null && check.getId() != product.getId()) {
-                binding.edtBarcode.setError("Barcode đã tồn tại");
-                binding.edtBarcode.requestFocus();
-                return;
-            }
-        }
-
-        double importPrice;
-        double sellPrice;
-        int quantity;
-
-        try {
-            importPrice = importPriceText.isEmpty() ? 0 : Double.parseDouble(importPriceText);
-            sellPrice = Double.parseDouble(sellPriceText);
-            quantity = quantityText.isEmpty() ? 0 : Integer.parseInt(quantityText);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Giá hoặc số lượng không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
 
         product.setName(name);
-        product.setBarcode(barcode);
-        product.setImportPrice(importPrice);
-        product.setSellPrice(sellPrice);
-        product.setQuantity(quantity);
+        product.setBarcode(binding.edtBarcode.getText().toString().trim().replace("\n", "").replace("\r", ""));
+        product.setSellPrice(Double.parseDouble(sellPriceText));
+        product.setImportPrice(TextUtils.isEmpty(binding.edtImportPrice.getText()) ? 0 : Double.parseDouble(binding.edtImportPrice.getText().toString()));
+        product.setQuantity(TextUtils.isEmpty(binding.edtQuantity.getText()) ? 0 : Integer.parseInt(binding.edtQuantity.getText().toString()));
         product.setActive(binding.chkActive.isChecked());
         
-        if (imageUri != null) {
-            product.setImageUrl(imageUri.toString());
+        if (savedImagePath != null) {
+            product.setImageUrl(savedImagePath);
         }
 
         repository.update(product);
-        Toast.makeText(this, "Đã cập nhật sản phẩm", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
         finish();
     }
 
@@ -189,18 +163,13 @@ public class EditProductActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Ảnh sản phẩm")
                 .setItems(items, (dialog, which) -> {
-                    if (which == 0) {
-                        checkCameraPermission();
-                    } else {
-                        galleryLauncher.launch("image/*");
-                    }
-                })
-                .show();
+                    if (which == 0) checkCameraPermission();
+                    else galleryLauncher.launch("image/*");
+                }).show();
     }
 
     private void checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             openCamera();
         } else {
             requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
@@ -210,11 +179,11 @@ public class EditProductActivity extends AppCompatActivity {
     private void openCamera() {
         try {
             File photoFile = createImageFile();
-            imageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
-            cameraLauncher.launch(imageUri);
+            tempImageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
+            cameraLauncher.launch(tempImageUri);
         } catch (IOException e) {
             Log.e("CAMERA", "Error creating image file", e);
-            Toast.makeText(this, "Không thể tạo file ảnh", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lỗi tạo file ảnh", Toast.LENGTH_SHORT).show();
         }
     }
 

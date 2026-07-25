@@ -26,6 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="12dp"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -34,7 +35,8 @@
                 android:id="@+id/edtSearch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Tìm theo tên hoặc barcode" />
+                android:hint="Tìm theo tên hoặc barcode"
+                android:singleLine="true" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

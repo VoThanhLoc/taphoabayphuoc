@@ -120,7 +120,7 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         // Ẩn popup gợi ý lúc đầu
         //binding.cardSuggestion.setVisibility(View.GONE);
         // Icon barcode
-        binding.layoutSearch.setEndIconOnClickListener(v -> {
+        binding.layoutSearch.setStartIconOnClickListener(v -> {
 
             if (ContextCompat.checkSelfPermission(
                     this,

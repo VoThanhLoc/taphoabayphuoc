@@ -63,8 +63,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Barcode"
+                    android:inputType="text"
                     android:imeOptions="actionNext"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    android:maxLines="1"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 

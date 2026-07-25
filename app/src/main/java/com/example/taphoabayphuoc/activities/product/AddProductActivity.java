@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
@@ -34,8 +35,8 @@ public class AddProductActivity extends AppCompatActivity {
 
     private ActivityAddProductBinding binding;
     private ProductRepository repository;
-    private Uri tempImageUri; // Temporary URI for camera
-    private String savedImagePath; // Final absolute path
+    private Uri tempImageUri; 
+    private String savedImagePath;
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -54,6 +55,8 @@ public class AddProductActivity extends AppCompatActivity {
                     if (savedImagePath != null) {
                         Glide.with(this).load(new File(savedImagePath)).placeholder(R.drawable.ic_product).into(binding.imgProduct);
                     }
+                } else {
+                    Log.e("CAMERA", "TakePicture failed or cancelled. success=" + success);
                 }
             });
 
@@ -81,6 +84,16 @@ public class AddProductActivity extends AppCompatActivity {
         }
 
         binding.btnChooseImage.setOnClickListener(v -> showImageDialog());
+        
+        binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_NEXT || 
+                (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                binding.edtImportPrice.requestFocus();
+                return true;
+            }
+            return false;
+        });
+
         binding.btnSave.setOnClickListener(v -> saveProduct());
     }
 
@@ -99,7 +112,7 @@ public class AddProductActivity extends AppCompatActivity {
 
         Product product = new Product();
         product.setName(name);
-        product.setBarcode(binding.edtBarcode.getText().toString().trim());
+        product.setBarcode(binding.edtBarcode.getText().toString().trim().replace("\n", "").replace("\r", ""));
         product.setSellPrice(Double.parseDouble(sellPriceText));
         product.setImportPrice(TextUtils.isEmpty(binding.edtImportPrice.getText()) ? 0 : Double.parseDouble(binding.edtImportPrice.getText().toString()));
         product.setQuantity(TextUtils.isEmpty(binding.edtQuantity.getText()) ? 0 : Integer.parseInt(binding.edtQuantity.getText().toString()));
@@ -131,12 +144,20 @@ public class AddProductActivity extends AppCompatActivity {
 
     private void openCamera() {
         try {
-            File photoFile = File.createTempFile("temp_", ".jpg", getExternalCacheDir());
+            File photoFile = createImageFile();
             tempImageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
             cameraLauncher.launch(tempImageUri);
         } catch (IOException e) {
-            Toast.makeText(this, "Lỗi tạo file", Toast.LENGTH_SHORT).show();
+            Log.e("CAMERA", "Error creating image file", e);
+            Toast.makeText(this, "Lỗi tạo file ảnh", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Override
