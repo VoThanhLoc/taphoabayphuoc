@@ -2,6 +2,7 @@ package com.example.taphoabayphuoc.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,8 +13,13 @@ import com.example.taphoabayphuoc.activities.product.ProductActivity;
 import com.example.taphoabayphuoc.activities.sale.SaleActivity;
 import com.example.taphoabayphuoc.activities.setting.SettingActivity;
 import com.example.taphoabayphuoc.databinding.ActivityMainBinding;
+import com.example.taphoabayphuoc.listener.DownloadCallback;
+import com.example.taphoabayphuoc.models.ApkDownloader;
+import com.example.taphoabayphuoc.models.ApkInstaller;
 import com.example.taphoabayphuoc.models.SettingEntity;
 import com.example.taphoabayphuoc.models.UserEntity;
+import com.example.taphoabayphuoc.models.update.ReleaseInfo;
+import com.example.taphoabayphuoc.models.update.UpdateCallback;
 import com.example.taphoabayphuoc.repository.SettingRepository;
 import com.example.taphoabayphuoc.repository.UserRepository;
 import androidx.appcompat.app.AlertDialog;
@@ -21,6 +27,12 @@ import androidx.appcompat.app.AlertDialog;
 import com.example.taphoabayphuoc.activities.login.LoginActivity;
 import com.example.taphoabayphuoc.firebase.FirebaseManager;
 import com.example.taphoabayphuoc.utils.SessionManager;
+import com.example.taphoabayphuoc.utils.UpdateManager;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.io.File;
+
 /**
  * MainActivity serves as the main dashboard of the application.
  * It provides a central navigation hub to access different functional modules
@@ -74,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             repository.insert(setting);
 
         }
+
         UserRepository userRepository =
                 new UserRepository(this);
 
@@ -90,6 +103,82 @@ public class MainActivity extends AppCompatActivity {
             userRepository.insert(admin);
 
         }
+
+        UpdateManager manager = new UpdateManager(this);
+
+        manager.check(new UpdateCallback() {
+
+            @Override
+            public void onUpdateAvailable(ReleaseInfo release) {
+
+                runOnUiThread(() -> showUpdateDialog(release));
+
+            }
+
+            @Override
+            public void onLatestVersion() {
+
+                Log.d("UPDATE", "Đã là phiên bản mới nhất");
+
+            }
+
+            @Override
+            public void onError(String message) {
+
+                Log.e("UPDATE", message);
+
+            }
+        });
+    }
+    private void showUpdateDialog(ReleaseInfo release) {
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Có phiên bản mới")
+                .setMessage(
+                        "Phiên bản mới: "
+                                + release.getVersion()
+                                + "\n\nBạn có muốn cập nhật không?"
+                )
+                .setCancelable(false)
+                .setPositiveButton("Cập nhật", (dialog, which) -> {
+
+                    ApkDownloader downloader = new ApkDownloader(this);
+
+                    downloader.download(
+                            release.getDownloadUrl(),
+                            new DownloadCallback() {
+
+                                @Override
+                                public void onProgress(int progress) {
+
+                                    Log.d("DOWNLOAD", progress + "%");
+
+                                }
+
+                                @Override
+                                public void onSuccess(File apkFile) {
+
+                                    Log.d("DOWNLOAD", "Done");
+                                    Log.d("DOWNLOAD", apkFile.getAbsolutePath());
+                                    runOnUiThread(() -> {
+
+                                        ApkInstaller.install(MainActivity.this, apkFile);
+
+                                    });
+                                }
+
+                                @Override
+                                public void onError(String message) {
+
+                                    Log.e("DOWNLOAD", message);
+
+                                }
+                            });
+
+                })
+                .setNegativeButton("Để sau", null)
+                .show();
+
     }
     private void showLogoutDialog() {
 

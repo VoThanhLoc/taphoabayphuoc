@@ -17,6 +17,9 @@ import android.view.inputmethod.EditorInfo;
 import com.example.taphoabayphuoc.databinding.ActivityAddProductBinding;
 import com.example.taphoabayphuoc.models.Product;
 import com.example.taphoabayphuoc.repository.ProductRepository;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.util.List;
@@ -62,6 +65,15 @@ public class AddProductActivity extends AppCompatActivity {
                         }
 
                     });
+
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    openCamera();
+                } else {
+                    Toast.makeText(this, "Bạn cần cấp quyền Camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,7 +199,7 @@ public class AddProductActivity extends AppCompatActivity {
                     switch (which) {
 
                         case 0:
-                            openCamera();
+                            checkCameraPermission();
                             break;
 
                         case 1:
@@ -199,6 +211,15 @@ public class AddProductActivity extends AppCompatActivity {
                 })
                 .show();
 
+    }
+
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            openCamera();
+        } else {
+            requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
     }
 
     private void openCamera() {
