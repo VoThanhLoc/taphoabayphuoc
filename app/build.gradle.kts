@@ -1,9 +1,18 @@
+
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     // id("com.google.gms.google-services") // Commented out because google-services.json is missing
     id("com.google.gms.google-services")
 }
 
+val keystoreProperties = Properties()
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
+}
 android {
     namespace = "com.example.taphoabayphuoc"
     compileSdk = 36
@@ -13,19 +22,46 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0.2"
+        versionName = "1.0.3"
 /* git run release
 $ git tag v1.0.1
  git push origin v1.0.1
-
+ build app
+ mở powershell lên
+ cd D:\TapHoaBayPhuoc
+ .\gradlew assembleRelease
+ .\gradlew clean
  */
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
 
+        create("release") {
+
+            if (keystorePropertiesFile.exists()) {
+
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+
+            }
+
+        }
+
+    }
     buildTypes {
+
         release {
+
+            signingConfig = signingConfigs.getByName("release")
+
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -35,6 +71,7 @@ $ git tag v1.0.1
     buildFeatures {
         viewBinding = true
     }
+
 }
 
 dependencies {

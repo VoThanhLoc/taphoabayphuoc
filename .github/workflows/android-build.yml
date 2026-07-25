@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     permissions:
@@ -24,6 +23,19 @@ jobs:
           java-version: 17
           cache: gradle
 
+      # Tạo file keystore từ GitHub Secret
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > upload-keystore.jks
+
+      # Tạo keystore.properties
+      - name: Create keystore.properties
+        run: |
+          echo "storeFile=upload-keystore.jks" > keystore.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> keystore.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> keystore.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> keystore.properties
+
       - name: Grant execute permission
         run: chmod +x gradlew
 
@@ -33,4 +45,4 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/release/app-release.apk
