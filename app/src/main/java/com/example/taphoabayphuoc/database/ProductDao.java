@@ -29,6 +29,9 @@ public interface ProductDao {
     @Query("SELECT * FROM products WHERE barcode=:barcode LIMIT 1")
     Product findByBarcode(String barcode);
 
+    @Query("SELECT * FROM products WHERE barcode=:barcode")
+    List<Product> findAllByBarcode(String barcode);
+
     @Query("SELECT COUNT(*) FROM products")
     int getCount();
 

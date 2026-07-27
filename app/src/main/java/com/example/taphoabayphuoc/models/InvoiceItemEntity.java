@@ -16,6 +16,8 @@ public class InvoiceItemEntity {
     private String barcode;
 
     private String productName;
+    
+    private String unit;
 
     private int quantity;
 
@@ -26,20 +28,13 @@ public class InvoiceItemEntity {
     public InvoiceItemEntity() {
     }
 
-    public InvoiceItemEntity(int id,
-                             int invoiceId,
-                             int productId,
-                             String barcode,
-                             String productName,
-                             int quantity,
-                             double price,
-                             double total) {
-
+    public InvoiceItemEntity(int id, int invoiceId, int productId, String barcode, String productName, String unit, int quantity, double price, double total) {
         this.id = id;
         this.invoiceId = invoiceId;
         this.productId = productId;
         this.barcode = barcode;
         this.productName = productName;
+        this.unit = unit;
         this.quantity = quantity;
         this.price = price;
         this.total = total;
@@ -83,6 +78,14 @@ public class InvoiceItemEntity {
 
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     public int getQuantity() {

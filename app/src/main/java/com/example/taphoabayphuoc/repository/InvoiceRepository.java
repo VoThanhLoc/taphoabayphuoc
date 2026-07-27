@@ -52,6 +52,7 @@ public class InvoiceRepository {
             detail.setProductId(item.getProduct().getId());
             detail.setBarcode(item.getProduct().getBarcode());
             detail.setProductName(item.getProduct().getName());
+            detail.setUnit(item.getProduct().getUnit());
             detail.setQuantity(item.getQuantity());
             detail.setPrice(item.getPrice());
             detail.setTotal(item.getTotal());
@@ -112,6 +113,7 @@ public class InvoiceRepository {
                                     detail.setProductId(item.getProduct().getId());
                                     detail.setBarcode(item.getProduct().getBarcode());
                                     detail.setProductName(item.getProduct().getName());
+                                    detail.setUnit(item.getProduct().getUnit());
                                 }
                                 detail.setQuantity(item.getQuantity());
                                 detail.setPrice(item.getPrice());

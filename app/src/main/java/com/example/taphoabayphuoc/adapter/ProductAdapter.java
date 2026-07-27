@@ -68,9 +68,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
             binding.txtName.setText(item.getName());
+            binding.txtUnit.setText(item.getUnit() != null ? "[" + item.getUnit() + "]" : "");
             binding.txtBarcode.setText(item.getBarcode());
             binding.txtPrice.setText(format.format(item.getSellPrice()));
-            binding.txtQuantity.setText("Tồn: " + item.getQuantity());
 
             binding.btnEdit.setOnClickListener(v -> listener.onEdit(item));
             binding.btnDelete.setOnClickListener(v -> listener.onDelete(item));

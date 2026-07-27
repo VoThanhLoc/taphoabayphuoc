@@ -20,7 +20,7 @@ import com.example.taphoabayphuoc.models.UserEntity;
                 UserEntity.class,
                 SettingEntity.class
         },
-        version = 7,
+        version = 8,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {

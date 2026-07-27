@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -37,6 +38,8 @@ public class AddProductActivity extends AppCompatActivity {
     private ProductRepository repository;
     private Uri tempImageUri; 
     private String savedImagePath;
+    
+    private static final String[] UNITS = {"Gói", "Cây", "Bì lớn", "Thùng", "Hộp", "Chai", "Lon", "Cái"};
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -83,6 +86,8 @@ public class AddProductActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        initUnitDropdown();
+
         binding.btnChooseImage.setOnClickListener(v -> showImageDialog());
         
         binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
@@ -95,6 +100,12 @@ public class AddProductActivity extends AppCompatActivity {
         });
 
         binding.btnSave.setOnClickListener(v -> saveProduct());
+    }
+
+    private void initUnitDropdown() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, UNITS);
+        binding.actUnit.setAdapter(adapter);
     }
 
     private void saveProduct() {
@@ -116,6 +127,7 @@ public class AddProductActivity extends AppCompatActivity {
         product.setSellPrice(Double.parseDouble(sellPriceText));
         product.setImportPrice(TextUtils.isEmpty(binding.edtImportPrice.getText()) ? 0 : Double.parseDouble(binding.edtImportPrice.getText().toString()));
         product.setQuantity(TextUtils.isEmpty(binding.edtQuantity.getText()) ? 0 : Integer.parseInt(binding.edtQuantity.getText().toString()));
+        product.setUnit(binding.actUnit.getText().toString());
         product.setActive(true);
         product.setImageUrl(savedImagePath != null ? savedImagePath : "");
 
@@ -144,20 +156,13 @@ public class AddProductActivity extends AppCompatActivity {
 
     private void openCamera() {
         try {
-            File photoFile = createImageFile();
+            File photoFile = File.createTempFile("camera_", ".jpg", getCacheDir());
             tempImageUri = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
             cameraLauncher.launch(tempImageUri);
         } catch (IOException e) {
-            Log.e("CAMERA", "Error creating image file", e);
+            Log.e("CAMERA", "Error creating temp file", e);
             Toast.makeText(this, "Lỗi tạo file ảnh", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Override

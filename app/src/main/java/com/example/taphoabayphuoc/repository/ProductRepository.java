@@ -47,6 +47,10 @@ public class ProductRepository {
         return productDao.findByBarcode(barcode);
     }
 
+    public List<Product> findAllByBarcode(String barcode) {
+        return productDao.findAllByBarcode(barcode);
+    }
+
     public List<Product> getAllProducts() {
         return productDao.getAll();
     }

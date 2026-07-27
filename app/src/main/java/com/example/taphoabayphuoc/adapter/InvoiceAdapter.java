@@ -10,11 +10,13 @@ import com.example.taphoabayphuoc.R;
 import com.example.taphoabayphuoc.databinding.ItemInvoiceBinding;
 import com.example.taphoabayphuoc.listener.InvoiceItemListener;
 import com.example.taphoabayphuoc.models.InvoiceItem;
+import com.example.taphoabayphuoc.utils.FileUtils;
 
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import com.bumptech.glide.Glide;
+
 public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHolder> {
 
     private final List<InvoiceItem> items;
@@ -65,7 +67,9 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
 
             NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
-            binding.txtName.setText(item.getProduct().getName());
+            String unit = (item.getProduct().getUnit() != null && !item.getProduct().getUnit().isEmpty()) 
+                    ? " [" + item.getProduct().getUnit() + "]" : "";
+            binding.txtName.setText(item.getProduct().getName() + unit);
 
             binding.txtBarcode.setText(item.getProduct().getBarcode());
 
@@ -83,6 +87,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
 
             binding.btnDelete.setOnClickListener(v ->
                     listener.onDelete(item));
+                    
             if (item.getProduct().getImageUrl() == null ||
                     item.getProduct().getImageUrl().isEmpty()) {
 
@@ -91,7 +96,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             } else {
 
                 Glide.with(binding.getRoot())
-                        .load(item.getProduct().getImageUrl())
+                        .load(FileUtils.getGlidePath(item.getProduct().getImageUrl()))
                         .placeholder(R.drawable.ic_product)
                         .into(binding.imgProduct);
             }
