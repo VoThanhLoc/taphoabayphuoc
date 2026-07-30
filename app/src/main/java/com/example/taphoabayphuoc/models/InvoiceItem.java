@@ -5,6 +5,7 @@ public class InvoiceItem {
     private Product product;
     private int quantity;
     private double price;
+    private boolean isWholesale;
 
     public InvoiceItem() {
     }
@@ -13,6 +14,7 @@ public class InvoiceItem {
         this.product = product;
         this.quantity = quantity;
         this.price = price;
+        this.isWholesale = false;
     }
 
     public Product getProduct() {
@@ -39,7 +41,19 @@ public class InvoiceItem {
         this.price = price;
     }
 
+    public boolean isWholesale() {
+        return isWholesale;
+    }
+
+    public void setWholesale(boolean wholesale) {
+        isWholesale = wholesale;
+    }
+
+    public double getDisplayPrice() {
+        return isWholesale ? price * 10 : price;
+    }
+
     public double getTotal() {
-        return quantity * price;
+        return quantity * getDisplayPrice();
     }
 }

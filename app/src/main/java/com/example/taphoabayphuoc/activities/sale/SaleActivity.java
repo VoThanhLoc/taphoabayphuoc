@@ -198,6 +198,12 @@ public class SaleActivity extends AppCompatActivity implements InvoiceItemListen
         updateTotal();
     }
 
+    @Override
+    public void onWholesaleChanged(InvoiceItem item) {
+        invoice.calculateTotal();
+        updateTotal();
+    }
+
     private void updateTotal() {
         invoice.calculateTotal();
         NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));

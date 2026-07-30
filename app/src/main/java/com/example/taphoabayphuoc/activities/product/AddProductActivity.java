@@ -4,12 +4,10 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,9 +26,6 @@ import com.example.taphoabayphuoc.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class AddProductActivity extends AppCompatActivity {
 
@@ -38,8 +33,6 @@ public class AddProductActivity extends AppCompatActivity {
     private ProductRepository repository;
     private Uri tempImageUri; 
     private String savedImagePath;
-    
-    private static final String[] UNITS = {"Gói", "Cây", "Bì lớn", "Thùng", "Hộp", "Chai", "Lon", "Cái"};
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -86,8 +79,6 @@ public class AddProductActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        initUnitDropdown();
-
         binding.btnChooseImage.setOnClickListener(v -> showImageDialog());
         
         binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
@@ -100,12 +91,6 @@ public class AddProductActivity extends AppCompatActivity {
         });
 
         binding.btnSave.setOnClickListener(v -> saveProduct());
-    }
-
-    private void initUnitDropdown() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, UNITS);
-        binding.actUnit.setAdapter(adapter);
     }
 
     private void saveProduct() {
@@ -127,7 +112,6 @@ public class AddProductActivity extends AppCompatActivity {
         product.setSellPrice(Double.parseDouble(sellPriceText));
         product.setImportPrice(TextUtils.isEmpty(binding.edtImportPrice.getText()) ? 0 : Double.parseDouble(binding.edtImportPrice.getText().toString()));
         product.setQuantity(TextUtils.isEmpty(binding.edtQuantity.getText()) ? 0 : Integer.parseInt(binding.edtQuantity.getText().toString()));
-        product.setUnit(binding.actUnit.getText().toString());
         product.setActive(true);
         product.setImageUrl(savedImagePath != null ? savedImagePath : "");
 

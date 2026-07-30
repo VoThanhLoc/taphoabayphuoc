@@ -33,7 +33,6 @@ public class InvoiceRepository {
     }
 
     public void saveInvoice(Invoice invoice) {
-// ... existing saveInvoice content ...
 
         // 1. Save to local SQLite
         InvoiceEntity entity = new InvoiceEntity();
@@ -52,9 +51,9 @@ public class InvoiceRepository {
             detail.setProductId(item.getProduct().getId());
             detail.setBarcode(item.getProduct().getBarcode());
             detail.setProductName(item.getProduct().getName());
-            detail.setUnit(item.getProduct().getUnit());
+            detail.setUnit(item.isWholesale() ? "Cây" : "Gói");
             detail.setQuantity(item.getQuantity());
-            detail.setPrice(item.getPrice());
+            detail.setPrice(item.getDisplayPrice());
             detail.setTotal(item.getTotal());
 
             db.invoiceItemDao().insert(detail);
@@ -113,10 +112,10 @@ public class InvoiceRepository {
                                     detail.setProductId(item.getProduct().getId());
                                     detail.setBarcode(item.getProduct().getBarcode());
                                     detail.setProductName(item.getProduct().getName());
-                                    detail.setUnit(item.getProduct().getUnit());
+                                    detail.setUnit(item.isWholesale() ? "Cây" : "Gói");
                                 }
                                 detail.setQuantity(item.getQuantity());
-                                detail.setPrice(item.getPrice());
+                                detail.setPrice(item.getDisplayPrice());
                                 detail.setTotal(item.getTotal());
 
                                 db.invoiceItemDao().insert(detail);

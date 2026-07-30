@@ -9,5 +9,7 @@ public interface InvoiceItemListener {
     void onDecrease(InvoiceItem item);
 
     void onDelete(InvoiceItem item);
+    
+    void onWholesaleChanged(InvoiceItem item);
 
 }

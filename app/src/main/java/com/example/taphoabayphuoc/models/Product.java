@@ -13,7 +13,6 @@ public class Product {
     private double importPrice;
     private double sellPrice;
     private int quantity;
-    private String unit; // Đơn vị tính: Gói, Cây, Thùng...
     private String imageUrl;
     private boolean active;
 
@@ -27,7 +26,6 @@ public class Product {
                    double importPrice,
                    double sellPrice,
                    int quantity,
-                   String unit,
                    String imageUrl,
                    boolean active) {
 
@@ -38,7 +36,6 @@ public class Product {
         this.importPrice = importPrice;
         this.sellPrice = sellPrice;
         this.quantity = quantity;
-        this.unit = unit;
         this.imageUrl = imageUrl;
         this.active = active;
     }
@@ -97,14 +94,6 @@ public class Product {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
     }
 
     public String getImageUrl() {

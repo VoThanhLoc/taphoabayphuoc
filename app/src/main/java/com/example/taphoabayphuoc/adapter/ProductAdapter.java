@@ -11,6 +11,7 @@ import com.example.taphoabayphuoc.R;
 import com.example.taphoabayphuoc.databinding.ItemProductBinding;
 import com.example.taphoabayphuoc.listener.ProductListener;
 import com.example.taphoabayphuoc.models.Product;
+import com.example.taphoabayphuoc.utils.FileUtils;
 
 import android.util.Log;
 import java.text.NumberFormat;
@@ -68,7 +69,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
             binding.txtName.setText(item.getName());
-            binding.txtUnit.setText(item.getUnit() != null ? "[" + item.getUnit() + "]" : "");
             binding.txtBarcode.setText(item.getBarcode());
             binding.txtPrice.setText(format.format(item.getSellPrice()));
 
@@ -78,9 +78,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
             if (item.getImageUrl() == null || item.getImageUrl().isEmpty()) {
                 binding.imgProduct.setImageResource(R.drawable.ic_product);
             } else {
-                Log.d("GLIDE", "Loading path: " + item.getImageUrl());
                 Glide.with(binding.imgProduct.getContext())
-                        .load(com.example.taphoabayphuoc.utils.FileUtils.getGlidePath(item.getImageUrl()))
+                        .load(FileUtils.getGlidePath(item.getImageUrl()))
                         .placeholder(R.drawable.ic_product)
                         .error(R.drawable.ic_product)
                         .into(binding.imgProduct);

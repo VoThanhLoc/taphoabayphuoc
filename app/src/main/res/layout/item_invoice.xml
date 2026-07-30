@@ -65,20 +65,42 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/txtBarcode"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Barcode"
-                android:textColor="#757575"
-                android:textSize="13sp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtBarcode"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginTop="4dp"
+                    android:text="Barcode"
+                    android:textColor="#757575"
+                    android:textSize="13sp" />
+
+                <CheckBox
+                    android:id="@+id/chkWholesale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cây (x10)"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:buttonTint="#000022"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/txtTotal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="6dp"
                 android:gravity="end"
                 android:text="0đ"
                 android:textColor="#F44336"
@@ -110,7 +132,6 @@
                         android:padding="0dp"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-
                         app:backgroundTint="@android:color/transparent"
                         app:icon="@drawable/ic_minus"
                         app:iconTint="#2E7D32"
@@ -137,7 +158,6 @@
                         android:padding="0dp"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-
                         app:backgroundTint="@android:color/transparent"
                         app:icon="@drawable/ic_add"
                         app:iconTint="#2E7D32"
@@ -161,11 +181,8 @@
                     android:padding="0dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    android:layout_marginEnd="0dp"
-
                     app:backgroundTint="#FFEBEE"
                     app:cornerRadius="22dp"
-
                     app:icon="@drawable/ic_delete"
                     app:iconSize="20dp"
                     app:iconTint="#F44336"

@@ -31,21 +31,17 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         ItemInvoiceBinding binding = ItemInvoiceBinding.inflate(
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
         );
-
         return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
         InvoiceItem item = items.get(position);
-
         holder.bind(item);
     }
 
@@ -55,7 +51,6 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         private final ItemInvoiceBinding binding;
 
         ViewHolder(ItemInvoiceBinding binding) {
@@ -64,37 +59,34 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         }
 
         void bind(InvoiceItem item) {
-
             NumberFormat format = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
-            String unit = (item.getProduct().getUnit() != null && !item.getProduct().getUnit().isEmpty()) 
-                    ? " [" + item.getProduct().getUnit() + "]" : "";
-            binding.txtName.setText(item.getProduct().getName() + unit);
-
+            binding.txtName.setText(item.getProduct().getName());
             binding.txtBarcode.setText(item.getProduct().getBarcode());
+            
+            // Wholesale toggle logic
+            binding.chkWholesale.setOnCheckedChangeListener(null);
+            binding.chkWholesale.setChecked(item.isWholesale());
+            binding.chkWholesale.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                item.setWholesale(isChecked);
+                updatePricing(item, format);
+                if (listener != null) {
+                    listener.onWholesaleChanged(item);
+                }
+            });
 
-            binding.txtPrice.setText(format.format(item.getPrice()));
+            updatePricing(item, format);
 
             binding.txtQuantity.setText(String.valueOf(item.getQuantity()));
 
-            binding.txtTotal.setText(format.format(item.getTotal()));
-
-            binding.btnAdd.setOnClickListener(v ->
-                    listener.onIncrease(item));
-
-            binding.btnMinus.setOnClickListener(v ->
-                    listener.onDecrease(item));
-
-            binding.btnDelete.setOnClickListener(v ->
-                    listener.onDelete(item));
+            binding.btnAdd.setOnClickListener(v -> listener.onIncrease(item));
+            binding.btnMinus.setOnClickListener(v -> listener.onDecrease(item));
+            binding.btnDelete.setOnClickListener(v -> listener.onDelete(item));
                     
             if (item.getProduct().getImageUrl() == null ||
                     item.getProduct().getImageUrl().isEmpty()) {
-
                 binding.imgProduct.setImageResource(R.drawable.ic_product);
-
             } else {
-
                 Glide.with(binding.getRoot())
                         .load(FileUtils.getGlidePath(item.getProduct().getImageUrl()))
                         .placeholder(R.drawable.ic_product)
@@ -102,5 +94,9 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             }
         }
 
+        private void updatePricing(InvoiceItem item, NumberFormat format) {
+            binding.txtPrice.setText(format.format(item.getDisplayPrice()));
+            binding.txtTotal.setText(format.format(item.getTotal()));
+        }
     }
 }

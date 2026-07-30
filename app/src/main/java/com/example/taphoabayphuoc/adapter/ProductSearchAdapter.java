@@ -51,8 +51,7 @@ public class ProductSearchAdapter extends ArrayAdapter<Product> {
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
         
         if (product != null) {
-            String unit = (product.getUnit() != null && !product.getUnit().isEmpty()) ? " [" + product.getUnit() + "]" : "";
-            textView.setText(product.getName() + unit);
+            textView.setText(product.getName());
         }
         
         return convertView;

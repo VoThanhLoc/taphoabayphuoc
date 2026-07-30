@@ -4,12 +4,10 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,8 +34,6 @@ public class EditProductActivity extends AppCompatActivity {
     private Product product;
     private Uri tempImageUri;
     private String savedImagePath;
-    
-    private static final String[] UNITS = {"Gói", "Cây", "Bì lớn", "Thùng", "Hộp", "Chai", "Lon", "Cái"};
 
     private final ActivityResultLauncher<String> galleryLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -91,7 +87,6 @@ public class EditProductActivity extends AppCompatActivity {
             return;
         }
 
-        initUnitDropdown();
         loadData();
 
         binding.edtBarcode.setOnEditorActionListener((v, actionId, event) -> {
@@ -107,12 +102,6 @@ public class EditProductActivity extends AppCompatActivity {
         binding.btnSave.setOnClickListener(v -> updateProduct());
     }
 
-    private void initUnitDropdown() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, UNITS);
-        binding.actUnit.setAdapter(adapter);
-    }
-
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -125,7 +114,6 @@ public class EditProductActivity extends AppCompatActivity {
         binding.edtImportPrice.setText(String.valueOf(product.getImportPrice()));
         binding.edtSellPrice.setText(String.valueOf(product.getSellPrice()));
         binding.edtQuantity.setText(String.valueOf(product.getQuantity()));
-        binding.actUnit.setText(product.getUnit(), false);
         binding.chkActive.setChecked(product.isActive());
 
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
@@ -165,7 +153,6 @@ public class EditProductActivity extends AppCompatActivity {
         product.setSellPrice(Double.parseDouble(sellPriceText));
         product.setImportPrice(TextUtils.isEmpty(binding.edtImportPrice.getText()) ? 0 : Double.parseDouble(binding.edtImportPrice.getText().toString()));
         product.setQuantity(TextUtils.isEmpty(binding.edtQuantity.getText()) ? 0 : Integer.parseInt(binding.edtQuantity.getText().toString()));
-        product.setUnit(binding.actUnit.getText().toString());
         product.setActive(binding.chkActive.isChecked());
         
         if (savedImagePath != null) {
